@@ -219,6 +219,50 @@ export type AppViewState = {
   logsLimit: number;
   logsMaxBytes: number;
   logsAtBottom: boolean;
+
+  // Dashboard: Tasks
+  tasksLoading: boolean;
+  tasksError: string | null;
+  tasksList: import("./types/tasks.js").Task[];
+  tasksViewMode: "list" | "kanban";
+  tasksStatusFilter: string;
+  tasksSearchQuery: string;
+  tasksBatchSelection: string[];
+  taskDetailId: string | null;
+  taskDetail: import("./types/tasks.js").Task | null;
+  taskDetailLoading: boolean;
+  taskCreateModalOpen: boolean;
+  taskCreating: boolean;
+
+  // Dashboard: Documents
+  documentsLoading: boolean;
+  documentsError: string | null;
+  documentsFileList: string[];
+  documentsActiveFile: string | null;
+  documentsContent: string;
+  documentsDraft: string;
+  documentsEditMode: boolean;
+  documentsSaving: boolean;
+  documentsSubView: "files" | "skills";
+
+  // Dashboard: Connected APIs
+  connectedApisLoading: boolean;
+  connectedApisError: string | null;
+  connectedApisList: import("./types/connected-api.js").ConnectedApi[];
+  connectedApisSearch: string;
+
+  // Dashboard: Activity
+  activityLoading: boolean;
+  activityError: string | null;
+  activityEntries: import("./types/activity.js").ActivityEntry[];
+  activityFilter: import("./types/activity.js").ActivityFilter;
+  activityAutoRefresh: boolean;
+
+  // Shared UI
+  toasts: Array<{ id: string; message: string; type: "success" | "error" | "info" }>;
+  lightboxUrl: string | null;
+  lightboxMeta: string | null;
+
   client: GatewayBrowserClient | null;
   refreshSessionsAfterChat: Set<string>;
   connect: () => void;

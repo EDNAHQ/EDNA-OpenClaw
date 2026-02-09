@@ -3,3 +3,10 @@
 @import "./styles/layout.mobile.css";
 @import "./styles/components.css";
 @import "./styles/config.css";
+@import "./styles/agent-monitor.css";
+@import "./styles/tasks.css";
+@import "./styles/documents.css";
+@import "./styles/connected-apis.css";
+@import "./styles/activity.css";
+@import "./styles/modals.css";
+@import "./styles/toast.css";

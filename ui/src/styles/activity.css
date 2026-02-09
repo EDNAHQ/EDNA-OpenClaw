@@ -1,0 +1,230 @@
+/* =============================================
+   ACTIVITY TIMELINE VIEW
+   ============================================= */
+
+.activity-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.activity-toolbar .filter-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Timeline */
+.timeline {
+  position: relative;
+  padding-left: 28px;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 20px;
+  animation: timeline-card-in 0.4s ease backwards;
+}
+
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -24px;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 2px solid var(--border);
+}
+
+.timeline-item.type-task::before {
+  border-color: var(--accent);
+  background: rgba(102, 84, 245, 0.2);
+}
+
+.timeline-item.type-memory::before {
+  border-color: var(--green, #2dd4a0);
+  background: rgba(45, 212, 160, 0.2);
+}
+
+.timeline-item.type-session::before {
+  border-color: var(--blue, #f2b347);
+  background: rgba(88, 166, 255, 0.2);
+}
+
+.timeline-item.type-config::before {
+  border-color: var(--yellow, #f5a623);
+  background: rgba(245, 166, 35, 0.2);
+}
+
+.timeline-item.type-channel::before {
+  border-color: var(--accent2, #ca5a8b);
+  background: rgba(167, 139, 250, 0.2);
+}
+
+.timeline-item.type-cron::before {
+  border-color: var(--yellow, #f5a623);
+  background: rgba(245, 166, 35, 0.2);
+}
+
+.timeline-item.type-system::before {
+  border-color: var(--muted);
+  background: rgba(139, 148, 158, 0.2);
+}
+
+.timeline-date {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.timeline-content {
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.timeline-content:hover {
+  border-color: rgba(102, 84, 245, 0.3);
+}
+
+.timeline-content.expanded {
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.timeline-content .preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.timeline-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.timeline-tag.memory {
+  background: rgba(45, 212, 160, 0.1);
+  color: var(--green, #2dd4a0);
+}
+
+.timeline-tag.task {
+  background: rgba(102, 84, 245, 0.1);
+  color: var(--accent2, #ca5a8b);
+}
+
+.timeline-tag.session {
+  background: rgba(88, 166, 255, 0.1);
+  color: var(--blue, #f2b347);
+}
+
+.timeline-tag.config {
+  background: rgba(245, 166, 35, 0.1);
+  color: var(--yellow, #f5a623);
+}
+
+.timeline-tag.channel {
+  background: rgba(167, 139, 250, 0.1);
+  color: var(--accent2, #ca5a8b);
+}
+
+.timeline-tag.system {
+  background: rgba(139, 148, 158, 0.1);
+  color: var(--muted);
+}
+
+/* Live Indicator */
+.live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-body);
+  user-select: none;
+}
+
+.live-indicator .live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: all 0.3s;
+}
+
+.live-indicator.active {
+  border-color: rgba(45, 212, 160, 0.35);
+  color: var(--green, #2dd4a0);
+}
+
+.live-indicator.active .live-dot {
+  background: var(--green, #2dd4a0);
+  box-shadow: 0 0 6px rgba(45, 212, 160, 0.5);
+  animation: live-pulse 2s infinite;
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(45, 212, 160, 0.4);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 0 4px rgba(45, 212, 160, 0);
+  }
+}
+
+.live-indicator:hover {
+  background: rgba(45, 212, 160, 0.06);
+}
+
+@keyframes timeline-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

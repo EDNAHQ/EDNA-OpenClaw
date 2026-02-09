@@ -22,6 +22,10 @@ import { loadNodes } from "./controllers/nodes.ts";
 import { loadPresence } from "./controllers/presence.ts";
 import { loadSessions } from "./controllers/sessions.ts";
 import { loadSkills } from "./controllers/skills.ts";
+import { loadTasks } from "./controllers/tasks.ts";
+import { loadConnectedApis } from "./controllers/connected-apis.ts";
+import { loadActivity } from "./controllers/activity.ts";
+import { loadAgentFiles } from "./controllers/agent-files.ts";
 import {
   inferBasePathFromPathname,
   normalizeBasePath,
@@ -247,6 +251,23 @@ export async function refreshActiveTab(host: SettingsHost) {
     host.logsAtBottom = true;
     await loadLogs(host as unknown as OpenClawApp, { reset: true });
     scheduleLogsScroll(host as unknown as Parameters<typeof scheduleLogsScroll>[0], true);
+  }
+  if (host.tab === "tasks") {
+    await loadTasks(host as unknown as OpenClawApp);
+  }
+  if (host.tab === "connected-apis") {
+    await loadConnectedApis(host as unknown as OpenClawApp);
+  }
+  if (host.tab === "activity") {
+    await loadActivity(host as unknown as OpenClawApp);
+  }
+  if (host.tab === "documents") {
+    const app = host as unknown as OpenClawApp;
+    const agentId = host.agentsSelectedId ?? host.agentsList?.defaultId ?? host.agentsList?.agents?.[0]?.id;
+    if (agentId) {
+      await loadAgentFiles(app, agentId);
+      app.documentsFileList = (app.agentFilesList?.files ?? []).map((f: { name: string }) => f.name);
+    }
   }
 }
 

@@ -6,16 +6,16 @@
   margin-bottom: 10px;
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px dashed rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(102, 84, 245, 0.25);
+  background: rgba(102, 84, 245, 0.04);
   color: var(--muted);
   font-size: 12px;
   line-height: 1.4;
 }
 
 :root[data-theme="light"] .chat-thinking {
-  border-color: rgba(16, 24, 40, 0.25);
-  background: rgba(16, 24, 40, 0.04);
+  border-color: rgba(102, 84, 245, 0.2);
+  background: rgba(102, 84, 245, 0.04);
 }
 
 .chat-text {
@@ -57,15 +57,17 @@
 }
 
 .chat-text :where(:not(pre) > code) {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(102, 84, 245, 0.1);
+  color: var(--accent2, #ca5a8b);
   padding: 0.15em 0.4em;
   border-radius: 4px;
 }
 
 .chat-text :where(pre) {
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 6px;
-  padding: 10px 12px;
+  background: var(--bg-accent, #0a0d14);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
   overflow-x: auto;
 }
 
@@ -108,13 +110,14 @@
 }
 
 :root[data-theme="light"] .chat-text :where(:not(pre) > code) {
-  background: rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(102, 84, 245, 0.08);
+  color: #5a48d6;
+  border: 1px solid rgba(102, 84, 245, 0.12);
 }
 
 :root[data-theme="light"] .chat-text :where(pre) {
-  background: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border);
 }
 
 .chat-text :where(hr) {

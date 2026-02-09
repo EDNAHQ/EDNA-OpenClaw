@@ -76,3 +76,12 @@ memory/
 .agent/*.json
 !.agent/workflows/
 local/
+
+# Workspace (personal identity, memory, credentials)
+workspace/
+
+# OpenClaw runtime config (credentials, tokens, secrets)
+.openclaw/
+
+# Migration archives
+*.tar.gz

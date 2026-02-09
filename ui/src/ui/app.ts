@@ -324,6 +324,50 @@ export class OpenClawApp extends LitElement {
   @state() logsMaxBytes = 250_000;
   @state() logsAtBottom = true;
 
+  // Dashboard: Tasks
+  @state() tasksLoading = false;
+  @state() tasksError: string | null = null;
+  @state() tasksList: import("./types/tasks.js").Task[] = [];
+  @state() tasksViewMode: "list" | "kanban" = "list";
+  @state() tasksStatusFilter: string = "all";
+  @state() tasksSearchQuery = "";
+  @state() tasksBatchSelection: string[] = [];
+  @state() taskDetailId: string | null = null;
+  @state() taskDetail: import("./types/tasks.js").Task | null = null;
+  @state() taskDetailLoading = false;
+  @state() taskCreateModalOpen = false;
+  @state() taskCreating = false;
+
+  // Dashboard: Documents
+  @state() documentsLoading = false;
+  @state() documentsError: string | null = null;
+  @state() documentsFileList: string[] = [];
+  @state() documentsActiveFile: string | null = null;
+  @state() documentsContent = "";
+  @state() documentsDraft = "";
+  @state() documentsEditMode = false;
+  @state() documentsSaving = false;
+  @state() documentsSubView: "files" | "skills" = "files";
+
+  // Dashboard: Connected APIs
+  @state() connectedApisLoading = false;
+  @state() connectedApisError: string | null = null;
+  @state() connectedApisList: import("./types/connected-api.js").ConnectedApi[] = [];
+  @state() connectedApisSearch = "";
+
+  // Dashboard: Activity
+  @state() activityLoading = false;
+  @state() activityError: string | null = null;
+  @state() activityEntries: import("./types/activity.js").ActivityEntry[] = [];
+  @state() activityFilter: import("./types/activity.js").ActivityFilter = "all";
+  @state() activityAutoRefresh = false;
+  activityPollInterval: number | null = null;
+
+  // Shared UI
+  @state() toasts: Array<{ id: string; message: string; type: "success" | "error" | "info" }> = [];
+  @state() lightboxUrl: string | null = null;
+  @state() lightboxMeta: string | null = null;
+
   client: GatewayBrowserClient | null = null;
   private chatScrollFrame: number | null = null;
   private chatScrollTimeout: number | null = null;

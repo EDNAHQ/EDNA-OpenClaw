@@ -20,6 +20,27 @@
   animation: dashboard-enter 0.4s var(--ease-out);
   transition: grid-template-columns var(--shell-focus-duration) var(--shell-focus-ease);
   overflow: hidden;
+  position: relative;
+}
+
+/* Ambient gradient mesh background */
+.shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(102, 84, 245, 0.06), transparent),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(202, 90, 139, 0.04), transparent),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(242, 179, 71, 0.03), transparent);
+}
+
+:root[data-theme="light"] .shell::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(102, 84, 245, 0.04), transparent),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(202, 90, 139, 0.03), transparent),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(242, 179, 71, 0.02), transparent);
 }
 
 @supports (height: 100dvh) {
@@ -83,8 +104,25 @@
   gap: 16px;
   padding: 0 20px;
   height: var(--shell-topbar-height);
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  border-bottom: none;
+  background: var(--topbar-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.topbar::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #f2b347, #ca5a8b, #6654f5);
+  opacity: 0.75;
+}
+
+:root[data-theme="light"] .topbar::after {
+  opacity: 0.5;
 }
 
 .topbar-left {
@@ -135,21 +173,23 @@
 }
 
 .brand-title {
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.1;
-  color: var(--text-strong);
+  background: linear-gradient(135deg, #f2b347, #ca5a8b, #6654f5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: shimmer 6s ease infinite;
 }
 
-.brand-sub {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--muted);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  line-height: 1;
+@keyframes brand-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
+
 
 /* Topbar status */
 .topbar-status {
@@ -196,10 +236,14 @@
 
 .nav {
   grid-area: nav;
+  position: relative;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 16px 12px;
-  background: var(--bg);
+  background: var(--nav-bg);
+  border-right: 1px solid var(--nav-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   scrollbar-width: none; /* Firefox */
   transition:
     width var(--shell-focus-duration) var(--shell-focus-ease),
@@ -405,13 +449,14 @@
 }
 
 .nav-item.active {
-  color: var(--text-strong);
-  background: var(--accent-subtle);
+  color: #fff;
+  background: var(--accent);
+  box-shadow: 0 2px 12px rgba(102, 84, 245, 0.3);
 }
 
 .nav-item.active .nav-item__icon {
   opacity: 1;
-  color: var(--accent);
+  color: #fff;
 }
 
 /* ===========================================
@@ -584,9 +629,11 @@
     gap: 6px;
     overflow-x: auto;
     border-right: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--nav-border);
     padding: 10px 14px;
-    background: var(--bg);
+    background: var(--nav-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
   }
 
   .nav-group {

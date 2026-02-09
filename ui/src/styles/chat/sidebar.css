@@ -42,7 +42,9 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--panel);
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .sidebar-header {
@@ -55,7 +57,9 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--panel);
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 /* Smaller close button for sidebar */

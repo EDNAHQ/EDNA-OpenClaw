@@ -3,6 +3,10 @@ import type { IconName } from "./icons.js";
 export const TAB_GROUPS = [
   { label: "Chat", tabs: ["chat"] },
   {
+    label: "Dashboard",
+    tabs: ["tasks", "documents", "connected-apis", "activity"],
+  },
+  {
     label: "Control",
     tabs: ["overview", "channels", "instances", "sessions", "usage", "cron"],
   },
@@ -23,7 +27,11 @@ export type Tab =
   | "chat"
   | "config"
   | "debug"
-  | "logs";
+  | "logs"
+  | "tasks"
+  | "documents"
+  | "connected-apis"
+  | "activity";
 
 const TAB_PATHS: Record<Tab, string> = {
   agents: "/agents",
@@ -39,6 +47,10 @@ const TAB_PATHS: Record<Tab, string> = {
   config: "/config",
   debug: "/debug",
   logs: "/logs",
+  tasks: "/tasks",
+  documents: "/documents",
+  "connected-apis": "/connected-apis",
+  activity: "/activity",
 };
 
 const PATH_TO_TAB = new Map(Object.entries(TAB_PATHS).map(([tab, path]) => [path, tab as Tab]));
@@ -150,6 +162,14 @@ export function iconForTab(tab: Tab): IconName {
       return "bug";
     case "logs":
       return "scrollText";
+    case "tasks":
+      return "checkSquare";
+    case "documents":
+      return "fileCode";
+    case "connected-apis":
+      return "globe";
+    case "activity":
+      return "clock";
     default:
       return "folder";
   }
@@ -183,6 +203,14 @@ export function titleForTab(tab: Tab) {
       return "Debug";
     case "logs":
       return "Logs";
+    case "tasks":
+      return "Tasks";
+    case "documents":
+      return "Documents";
+    case "connected-apis":
+      return "Connected APIs";
+    case "activity":
+      return "Activity";
     default:
       return "Control";
   }
@@ -216,6 +244,14 @@ export function subtitleForTab(tab: Tab) {
       return "Gateway snapshots, events, and manual RPC calls.";
     case "logs":
       return "Live tail of the gateway file logs.";
+    case "tasks":
+      return "Manage tasks with list and kanban views.";
+    case "documents":
+      return "Browse and edit agent documents and files.";
+    case "connected-apis":
+      return "Monitor connected channels and API services.";
+    case "activity":
+      return "Activity timeline and event log.";
     default:
       return "";
   }

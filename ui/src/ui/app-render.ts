@@ -77,6 +77,16 @@ import { renderOverview } from "./views/overview.ts";
 import { renderSessions } from "./views/sessions.ts";
 import { renderSkills } from "./views/skills.ts";
 import { renderUsage } from "./views/usage.ts";
+import { loadConnectedApis } from "./controllers/connected-apis.ts";
+import { loadActivity } from "./controllers/activity.ts";
+import { loadTasks, createTask, updateTask, deleteTask, addTaskNote, spawnTask } from "./controllers/tasks.ts";
+import { renderAgentMonitor } from "./views/agent-monitor.ts";
+import { renderTasks } from "./views/tasks.ts";
+import { renderTaskDetailModal } from "./views/tasks-detail-modal.ts";
+import { renderTaskCreateModal } from "./views/tasks-create-modal.ts";
+import { renderDocuments } from "./views/documents.ts";
+import { renderConnectedApis } from "./views/connected-apis.ts";
+import { renderActivity } from "./views/activity.ts";
 
 const AVATAR_DATA_RE = /^data:/i;
 const AVATAR_HTTP_RE = /^https?:\/\//i;
@@ -134,11 +144,10 @@ export function renderApp(state: AppViewState) {
           </button>
           <div class="brand">
             <div class="brand-logo">
-              <img src=${basePath ? `${basePath}/favicon.svg` : "/favicon.svg"} alt="OpenClaw" />
+              <img src=${basePath ? `${basePath}/favicon.svg` : "/favicon.svg"} alt="EDNA OpenClaw" />
             </div>
             <div class="brand-text">
-              <div class="brand-title">OPENCLAW</div>
-              <div class="brand-sub">Gateway Dashboard</div>
+              <div class="brand-title">EDNA OPENCLAW</div>
             </div>
           </div>
         </div>
@@ -207,6 +216,15 @@ export function renderApp(state: AppViewState) {
             ${isChat ? renderChatControls(state) : nothing}
           </div>
         </section>
+
+        ${state.tab === "overview" || state.tab === "tasks"
+          ? renderAgentMonitor({
+              connected: state.connected,
+              agentsList: state.agentsList,
+              sessionsResult: state.sessionsResult,
+              cronStatus: state.cronStatus,
+            })
+          : nothing}
 
         ${
           state.tab === "overview"
@@ -1214,9 +1232,145 @@ export function renderApp(state: AppViewState) {
               })
             : nothing
         }
+        ${
+          state.tab === "tasks"
+            ? renderTasks({
+                loading: state.tasksLoading,
+                error: state.tasksError,
+                tasks: state.tasksList,
+                viewMode: state.tasksViewMode,
+                statusFilter: state.tasksStatusFilter,
+                searchQuery: state.tasksSearchQuery,
+                batchSelection: state.tasksBatchSelection,
+                onViewModeChange: (mode) => (state.tasksViewMode = mode),
+                onStatusFilterChange: (status) => (state.tasksStatusFilter = status),
+                onSearchChange: (query) => (state.tasksSearchQuery = query),
+                onBatchToggle: (id) => {
+                  const sel = state.tasksBatchSelection;
+                  state.tasksBatchSelection = sel.includes(id)
+                    ? sel.filter((s) => s !== id)
+                    : [...sel, id];
+                },
+                onBatchClear: () => (state.tasksBatchSelection = []),
+                onCreateOpen: () => (state.taskCreateModalOpen = true),
+                onTaskClick: (id) => {
+                  state.taskDetailId = id;
+                  state.taskDetail = state.tasksList.find((t) => t.id === id) ?? null;
+                },
+                onTaskStatusChange: (id, status) => void updateTask(state, id, { status }),
+                onTaskDelete: (id) => void deleteTask(state, id),
+                onRefresh: () => void loadTasks(state),
+              })
+            : nothing
+        }
+
+        ${
+          state.tab === "documents"
+            ? renderDocuments({
+                loading: state.documentsLoading,
+                error: state.documentsError,
+                fileList: state.documentsFileList,
+                activeFile: state.documentsActiveFile,
+                content: state.documentsContent,
+                draft: state.documentsDraft,
+                editMode: state.documentsEditMode,
+                saving: state.documentsSaving,
+                onFileSelect: (name) => {
+                  state.documentsActiveFile = name;
+                  state.documentsEditMode = false;
+                  const agentId = resolvedAgentId;
+                  if (agentId) {
+                    void loadAgentFileContent(state as unknown as Parameters<typeof loadAgentFileContent>[0], agentId, name).then(() => {
+                      state.documentsContent = state.agentFileContents[name] ?? "";
+                      state.documentsDraft = state.documentsContent;
+                    });
+                  }
+                },
+                onDraftChange: (content) => (state.documentsDraft = content),
+                onToggleEdit: () => (state.documentsEditMode = !state.documentsEditMode),
+                onSave: () => {
+                  const agentId = resolvedAgentId;
+                  const name = state.documentsActiveFile;
+                  if (agentId && name) {
+                    state.documentsSaving = true;
+                    void saveAgentFile(state as unknown as Parameters<typeof saveAgentFile>[0], agentId, name, state.documentsDraft).then(() => {
+                      state.documentsContent = state.documentsDraft;
+                      state.documentsSaving = false;
+                    });
+                  }
+                },
+                onRefresh: () => {
+                  const agentId = resolvedAgentId;
+                  if (agentId) {
+                    state.documentsLoading = true;
+                    void loadAgentFiles(state as unknown as Parameters<typeof loadAgentFiles>[0], agentId).then(() => {
+                      state.documentsFileList = (state.agentFilesList?.files ?? []).map((f) => f.name);
+                      state.documentsLoading = false;
+                    });
+                  }
+                },
+              })
+            : nothing
+        }
+
+        ${
+          state.tab === "connected-apis"
+            ? renderConnectedApis({
+                loading: state.connectedApisLoading,
+                error: state.connectedApisError,
+                apis: state.connectedApisList,
+                search: state.connectedApisSearch,
+                onSearchChange: (query) => (state.connectedApisSearch = query),
+                onRefresh: () => void loadConnectedApis(state),
+              })
+            : nothing
+        }
+
+        ${
+          state.tab === "activity"
+            ? renderActivity({
+                loading: state.activityLoading,
+                error: state.activityError,
+                entries: state.activityEntries,
+                filter: state.activityFilter,
+                autoRefresh: state.activityAutoRefresh,
+                onFilterChange: (filter) => (state.activityFilter = filter),
+                onAutoRefreshToggle: () => {
+                  state.activityAutoRefresh = !state.activityAutoRefresh;
+                },
+                onRefresh: () => void loadActivity(state),
+              })
+            : nothing
+        }
       </main>
       ${renderExecApprovalPrompt(state)}
       ${renderGatewayUrlConfirmation(state)}
+      ${state.taskDetailId ? renderTaskDetailModal({
+        task: state.taskDetail,
+        loading: state.taskDetailLoading,
+        onClose: () => { state.taskDetailId = null; state.taskDetail = null; },
+        onStatusChange: (status) => void updateTask(state, state.taskDetailId!, { status }),
+        onSpawn: () => void spawnTask(state, state.taskDetailId!),
+        onDelete: () => void deleteTask(state, state.taskDetailId!),
+        onAddNote: (text) => void addTaskNote(state, state.taskDetailId!, text),
+      }) : nothing}
+      ${renderTaskCreateModal({
+        open: state.taskCreateModalOpen,
+        creating: state.taskCreating,
+        onClose: () => (state.taskCreateModalOpen = false),
+        onCreate: (data) => void createTask(state, data),
+      })}
+      ${state.toasts.length > 0
+        ? html`<div class="toast-container">${state.toasts.map(
+            (t) => html`<div class="toast ${t.type}"><span class="toast-icon">${t.type === "success" ? "\u2713" : t.type === "error" ? "\u2717" : "\u2139"}</span>${t.message}</div>`,
+          )}</div>`
+        : nothing}
+      ${state.lightboxUrl
+        ? html`<div class="lightbox-overlay show" @click=${() => { state.lightboxUrl = null; state.lightboxMeta = null; }}>
+            <img class="lightbox-img" src=${state.lightboxUrl} alt=${state.lightboxMeta ?? ""} />
+            <button class="lightbox-close" @click=${() => { state.lightboxUrl = null; state.lightboxMeta = null; }}>&times;</button>
+          </div>`
+        : nothing}
     </div>
   `;
 }
