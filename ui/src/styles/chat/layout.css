@@ -322,12 +322,26 @@
   box-sizing: border-box;
 }
 
-/* Chat controls - moved to content-header area, left aligned */
+/* Chat side toolbar - floating column on the right edge */
+.chat-side-toolbar {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  z-index: 20;
+  pointer-events: auto;
+}
+
+.chat-side-toolbar .chat-controls {
+  flex-direction: column;
+}
+
+/* Chat controls */
 .chat-controls {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 

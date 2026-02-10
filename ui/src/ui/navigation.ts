@@ -134,6 +134,25 @@ export function inferBasePathFromPathname(pathname: string): string {
   return `/${segments.join("/")}`;
 }
 
+/** Map each TAB_GROUP label to an icon for the rail. */
+export const RAIL_ICONS: Record<string, IconName> = {
+  Chat: "messageSquare",
+  Dashboard: "columns",
+  Control: "barChart",
+  Agent: "brain",
+  Settings: "settings",
+};
+
+/** Return the TAB_GROUP label that contains the given tab. */
+export function groupForTab(tab: Tab): string {
+  for (const group of TAB_GROUPS) {
+    if ((group.tabs as readonly string[]).includes(tab)) {
+      return group.label;
+    }
+  }
+  return TAB_GROUPS[0].label;
+}
+
 export function iconForTab(tab: Tab): IconName {
   switch (tab) {
     case "agents":

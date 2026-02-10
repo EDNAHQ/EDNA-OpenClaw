@@ -52,7 +52,7 @@ import {
 } from "./controllers/skills.ts";
 import { loadUsage, loadSessionTimeSeries, loadSessionLogs } from "./controllers/usage.ts";
 import { icons } from "./icons.ts";
-import { normalizeBasePath, TAB_GROUPS, subtitleForTab, titleForTab } from "./navigation.ts";
+import { normalizeBasePath, TAB_GROUPS, subtitleForTab, titleForTab, groupForTab, RAIL_ICONS, pathForTab } from "./navigation.ts";
 
 // Module-scope debounce for usage date changes (avoids type-unsafe hacks on state object)
 let usageDateDebounceTimeout: number | null = null;
@@ -151,71 +151,60 @@ export function renderApp(state: AppViewState) {
             </div>
           </div>
         </div>
-        <div class="topbar-status">
-          <div class="pill">
-            <span class="statusDot ${state.connected ? "ok" : ""}"></span>
-            <span>Health</span>
-            <span class="mono">${state.connected ? "OK" : "Offline"}</span>
-          </div>
-          ${renderThemeToggle(state)}
-        </div>
+        <div class="topbar-status"></div>
       </header>
-      <aside class="nav ${state.settings.navCollapsed ? "nav--collapsed" : ""}">
+      <aside class="rail">
         ${TAB_GROUPS.map((group) => {
-          const isGroupCollapsed = state.settings.navGroupsCollapsed[group.label] ?? false;
-          const hasActiveTab = group.tabs.some((tab) => tab === state.tab);
+          const active = groupForTab(state.tab) === group.label;
+          const href = pathForTab(group.tabs[0], basePath);
           return html`
-            <div class="nav-group ${isGroupCollapsed && !hasActiveTab ? "nav-group--collapsed" : ""}">
-              <button
-                class="nav-label"
-                @click=${() => {
-                  const next = { ...state.settings.navGroupsCollapsed };
-                  next[group.label] = !isGroupCollapsed;
-                  state.applySettings({
-                    ...state.settings,
-                    navGroupsCollapsed: next,
-                  });
-                }}
-                aria-expanded=${!isGroupCollapsed}
-              >
-                <span class="nav-label__text">${group.label}</span>
-                <span class="nav-label__chevron">${isGroupCollapsed ? "+" : "−"}</span>
-              </button>
+            <a
+              href=${href}
+              class="rail-icon ${active ? "active" : ""}"
+              title=${group.label}
+              @click=${(e: MouseEvent) => {
+                if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                e.preventDefault();
+                state.setTab(group.tabs[0]);
+              }}
+            >
+              ${icons[RAIL_ICONS[group.label]]}
+            </a>
+          `;
+        })}
+        <div class="rail-spacer"></div>
+        <a
+          class="rail-icon"
+          href="https://docs.openclaw.ai"
+          target="_blank"
+          rel="noreferrer"
+          title="Docs"
+        >
+          ${icons.book}
+        </a>
+      </aside>
+      <aside class="nav ${state.settings.navCollapsed ? "nav--collapsed" : ""}">
+        ${(() => {
+          const activeGroup = TAB_GROUPS.find((g) => g.label === groupForTab(state.tab)) ?? TAB_GROUPS[0];
+          return html`
+            <div class="nav-group">
               <div class="nav-group__items">
-                ${group.tabs.map((tab) => renderTab(state, tab))}
+                ${activeGroup.tabs.map((tab) => renderTab(state, tab))}
               </div>
             </div>
           `;
-        })}
-        <div class="nav-group nav-group--links">
-          <div class="nav-label nav-label--static">
-            <span class="nav-label__text">Resources</span>
-          </div>
-          <div class="nav-group__items">
-            <a
-              class="nav-item nav-item--external"
-              href="https://docs.openclaw.ai"
-              target="_blank"
-              rel="noreferrer"
-              title="Docs (opens in new tab)"
-            >
-              <span class="nav-item__icon" aria-hidden="true">${icons.book}</span>
-              <span class="nav-item__text">Docs</span>
-            </a>
-          </div>
-        </div>
+        })()}
       </aside>
       <main class="content ${isChat ? "content--chat" : ""}">
-        <section class="content-header">
+        ${isChat ? nothing : html`<section class="content-header">
           <div>
             ${state.tab === "usage" ? nothing : html`<div class="page-title">${titleForTab(state.tab)}</div>`}
             ${state.tab === "usage" ? nothing : html`<div class="page-sub">${subtitleForTab(state.tab)}</div>`}
           </div>
           <div class="page-meta">
             ${state.lastError ? html`<div class="pill danger">${state.lastError}</div>` : nothing}
-            ${isChat ? renderChatControls(state) : nothing}
           </div>
-        </section>
+        </section>`}
 
         ${state.tab === "overview" || state.tab === "tasks"
           ? renderAgentMonitor({
