@@ -35,6 +35,7 @@ type GatewayHost = {
   connected: boolean;
   hello: GatewayHelloOk | null;
   lastError: string | null;
+  lastErrorAction: { label: string; handler: () => void } | null;
   onboarding?: boolean;
   eventLogBuffer: EventLogEntry[];
   eventLog: EventLogEntry[];
@@ -117,8 +118,14 @@ function applySessionDefaults(host: GatewayHost, defaults?: SessionDefaultsSnaps
 
 let errorAutoDismissTimer: ReturnType<typeof setTimeout> | null = null;
 
-function setLastErrorWithAutoDismiss(host: GatewayHost, message: string, dismissMs = 15_000) {
+function setLastErrorWithAutoDismiss(
+  host: GatewayHost,
+  message: string,
+  action?: { label: string; handler: () => void } | null,
+  dismissMs = 15_000,
+) {
   host.lastError = message;
+  host.lastErrorAction = action ?? null;
   if (errorAutoDismissTimer) {
     clearTimeout(errorAutoDismissTimer);
   }
@@ -126,6 +133,7 @@ function setLastErrorWithAutoDismiss(host: GatewayHost, message: string, dismiss
     // Only clear if the message hasn't changed since we set the timer
     if (host.lastError === message) {
       host.lastError = null;
+      host.lastErrorAction = null;
     }
     errorAutoDismissTimer = null;
   }, dismissMs);
@@ -133,6 +141,7 @@ function setLastErrorWithAutoDismiss(host: GatewayHost, message: string, dismiss
 
 export function connectGateway(host: GatewayHost) {
   host.lastError = null;
+  host.lastErrorAction = null;
   host.hello = null;
   host.connected = false;
   host.execApprovalQueue = [];
@@ -152,6 +161,7 @@ export function connectGateway(host: GatewayHost) {
     onHello: (hello) => {
       host.connected = true;
       host.lastError = null;
+      host.lastErrorAction = null;
       host.hello = hello;
       applySnapshot(host, hello);
       // Reset orphaned chat run state from before disconnect.
@@ -169,15 +179,35 @@ export function connectGateway(host: GatewayHost) {
     onClose: ({ code, reason }) => {
       host.connected = false;
       // Code 1012 = Service Restart (expected during config saves, don't show as error)
-      if (code !== 1012) {
-        setLastErrorWithAutoDismiss(host, `disconnected (${code}): ${reason || "no reason"}`);
+      if (code === 1012) {
+        return;
       }
+      const reconnect = { label: "Reconnect now", handler: () => connectGateway(host) };
+      // Provide user-friendly disconnect messages based on close code
+      let message: string;
+      if (code === 1006) {
+        message = "Connection lost — will reconnect automatically";
+      } else if (code === 1001) {
+        message = "Server went away — will reconnect automatically";
+      } else if (code >= 4000) {
+        message = reason
+          ? `Connection closed: ${reason}`
+          : "Connection closed unexpectedly";
+      } else {
+        message = reason
+          ? `Disconnected: ${reason}`
+          : "Disconnected from server";
+      }
+      setLastErrorWithAutoDismiss(host, message, reconnect);
     },
     onEvent: (evt) => handleGatewayEvent(host, evt),
     onGap: ({ expected, received }) => {
+      const missed = received - expected;
+      const refresh = { label: "Refresh now", handler: () => window.location.reload() };
       setLastErrorWithAutoDismiss(
         host,
-        `event gap detected (expected seq ${expected}, got ${received}); refresh recommended`,
+        `Missed ${missed} update${missed === 1 ? "" : "s"} — some data may be stale`,
+        refresh,
       );
     },
   });

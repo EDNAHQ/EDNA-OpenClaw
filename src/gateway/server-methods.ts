@@ -8,6 +8,7 @@ import { chatHandlers } from "./server-methods/chat.js";
 import { configHandlers } from "./server-methods/config.js";
 import { connectHandlers } from "./server-methods/connect.js";
 import { cronHandlers } from "./server-methods/cron.js";
+import { tasksHandlers } from "./server-methods/tasks.js";
 import { deviceHandlers } from "./server-methods/devices.js";
 import { execApprovalsHandlers } from "./server-methods/exec-approvals.js";
 import { healthHandlers } from "./server-methods/health.js";
@@ -67,6 +68,7 @@ const READ_METHODS = new Set([
   "cron.list",
   "cron.status",
   "cron.runs",
+  "tasks.list",
   "system-presence",
   "last-heartbeat",
   "node.list",
@@ -88,6 +90,7 @@ const WRITE_METHODS = new Set([
   "chat.send",
   "chat.abort",
   "browser.request",
+  "tasks.spawn",
 ]);
 
 function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["client"]) {
@@ -152,6 +155,10 @@ function authorizeGatewayMethod(method: string, client: GatewayRequestOptions["c
     method === "cron.update" ||
     method === "cron.remove" ||
     method === "cron.run" ||
+    method === "tasks.create" ||
+    method === "tasks.update" ||
+    method === "tasks.delete" ||
+    method === "tasks.addNote" ||
     method === "sessions.patch" ||
     method === "sessions.reset" ||
     method === "sessions.delete" ||
@@ -188,6 +195,7 @@ export const coreGatewayHandlers: GatewayRequestHandlers = {
   ...agentHandlers,
   ...agentsHandlers,
   ...browserHandlers,
+  ...tasksHandlers,
 };
 
 export async function handleGatewayRequest(

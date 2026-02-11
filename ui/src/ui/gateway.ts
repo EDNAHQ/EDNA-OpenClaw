@@ -258,7 +258,12 @@ export class GatewayBrowserClient {
       const seq = typeof evt.seq === "number" ? evt.seq : null;
       if (seq !== null) {
         if (this.lastSeq !== null && seq > this.lastSeq + 1) {
-          this.opts.onGap?.({ expected: this.lastSeq + 1, received: seq });
+          const gap = seq - (this.lastSeq + 1);
+          // Only notify for significant gaps (3+ missed events).
+          // Gaps of 1-2 are common and benign (server-internal events, minor hiccups).
+          if (gap >= 3) {
+            this.opts.onGap?.({ expected: this.lastSeq + 1, received: seq });
+          }
         }
         this.lastSeq = seq;
       }

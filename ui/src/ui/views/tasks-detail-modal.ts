@@ -66,7 +66,7 @@ export function renderTaskDetailModal(props: TaskDetailModalProps) {
           ${task.content
             ? html`
                 <div class="detail-section">
-                  <div class="detail-section-title">Content</div>
+                  <div class="detail-section-title">Agent Instructions</div>
                   <div class="detail-section-content">
                     <pre style="background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; font-size: 0.82rem; overflow-x: auto; white-space: pre-wrap; color: var(--text); font-family: var(--mono);">${task.content}</pre>
                   </div>
@@ -88,7 +88,7 @@ export function renderTaskDetailModal(props: TaskDetailModalProps) {
           ${task.notes.length > 0
             ? html`
                 <div class="detail-section">
-                  <div class="detail-section-title">Notes (${task.notes.length})</div>
+                  <div class="detail-section-title">Run History (${task.notes.length})</div>
                   <div class="detail-section-content">
                     ${task.notes.map(
                       (note) => html`
@@ -122,61 +122,11 @@ export function renderTaskDetailModal(props: TaskDetailModalProps) {
               `
             : nothing}
 
-          <div class="detail-section">
-            <div class="detail-section-title">Add Note</div>
-            <div class="detail-section-content">
-              <div style="display: flex; gap: 8px;">
-                <input
-                  type="text"
-                  class="form-input"
-                  placeholder="Type a note..."
-                  id="task-note-input"
-                  @keydown=${(e: KeyboardEvent) => {
-                    if (e.key === "Enter") {
-                      const input = e.target as HTMLInputElement;
-                      if (input.value.trim()) {
-                        props.onAddNote(input.value.trim());
-                        input.value = "";
-                      }
-                    }
-                  }}
-                />
-                <button
-                  class="action-btn primary"
-                  @click=${() => {
-                    const input = document.getElementById("task-note-input") as HTMLInputElement | null;
-                    if (input?.value.trim()) {
-                      props.onAddNote(input.value.trim());
-                      input.value = "";
-                    }
-                  }}
-                >
-                  Add
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="detail-actions">
-          <select
-            class="form-select"
-            style="width: auto; min-width: 140px;"
-            .value=${task.status}
-            @change=${(e: Event) =>
-              props.onStatusChange((e.target as HTMLSelectElement).value as TaskStatus)}
-          >
-            <option value="new">New</option>
-            <option value="in-progress">In Progress</option>
-            <option value="done">Done</option>
-            <option value="failed">Failed</option>
-          </select>
-          <button class="action-btn" @click=${props.onSpawn}>
-            ${icons.play} Spawn
-          </button>
-          <div style="flex: 1;"></div>
-          <button class="action-btn danger" @click=${props.onDelete}>
-            ${icons.trash} Delete
+          <button class="action-btn primary" @click=${props.onSpawn}>
+            ${icons.play} Run Now
           </button>
         </div>
       </div>

@@ -93,8 +93,8 @@ export function renderTasks(props: TasksProps) {
             ${icons.columns}
           </button>
         </div>
-        <button class="task-create-btn" @click=${props.onCreateOpen}>
-          ${icons.plus} New Task
+        <button class="action-btn" @click=${props.onRefresh} title="Refresh">
+          ${icons.clock} Refresh
         </button>
       </div>
     </div>
@@ -123,17 +123,12 @@ export function renderTasks(props: TasksProps) {
             ? html`
                 <div class="empty-state">
                   <div class="empty-icon">${icons.checkSquare}</div>
-                  <div class="empty-title">No Tasks</div>
+                  <div class="empty-title">No Scheduled Tasks</div>
                   <div class="empty-desc">
                     ${props.tasks.length === 0
-                      ? "Create your first task to get started."
+                      ? "No cron jobs configured. Add cron jobs to see them here."
                       : "No tasks match your current filters."}
                   </div>
-                  ${props.tasks.length === 0
-                    ? html`<button class="task-create-btn" style="margin: 12px auto 0;" @click=${props.onCreateOpen}>
-                        ${icons.plus} Create Task
-                      </button>`
-                    : nothing}
                 </div>
               `
             : nothing}

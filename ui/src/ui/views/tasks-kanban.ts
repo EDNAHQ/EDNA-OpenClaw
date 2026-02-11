@@ -31,30 +31,7 @@ export function renderTasksKanban(props: TasksKanbanProps) {
       ${COLUMNS.map((col) => {
         const tasks = props.tasks.filter((t) => t.status === col.status);
         return html`
-          <div
-            class="kanban-column"
-            @dragover=${(e: DragEvent) => {
-              e.preventDefault();
-              if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
-              (e.currentTarget as HTMLElement).classList.add("drag-over");
-            }}
-            @dragleave=${(e: DragEvent) => {
-              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-              const x = e.clientX;
-              const y = e.clientY;
-              if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
-                (e.currentTarget as HTMLElement).classList.remove("drag-over");
-              }
-            }}
-            @drop=${(e: DragEvent) => {
-              e.preventDefault();
-              (e.currentTarget as HTMLElement).classList.remove("drag-over");
-              const taskId = e.dataTransfer?.getData("text/plain");
-              if (taskId) {
-                props.onTaskStatusChange(taskId, col.status);
-              }
-            }}
-          >
+          <div class="kanban-column">
             <div class="kanban-col-header">
               <div class="kanban-col-title">
                 <span class="col-dot ${col.status}" style="background: ${col.colorVar}; box-shadow: 0 0 8px ${col.colorVar}40;"></span>
@@ -66,25 +43,14 @@ export function renderTasksKanban(props: TasksKanbanProps) {
               ${tasks.length === 0
                 ? html`<div class="kanban-drop-zone">
                     <span class="kanban-drop-icon">${col.emoji}</span>
-                    <span class="kanban-drop-text">Drop tasks here</span>
+                    <span class="kanban-drop-text">No tasks</span>
                   </div>`
                 : nothing}
               ${tasks.map(
                 (task, idx) => html`
                   <div
                     class="kanban-card status-${task.status} priority-${task.priority}"
-                    draggable="true"
                     style="animation-delay: ${idx * 0.04}s"
-                    @dragstart=${(e: DragEvent) => {
-                      e.dataTransfer?.setData("text/plain", task.id);
-                      if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
-                      requestAnimationFrame(() => {
-                        (e.target as HTMLElement).classList.add("dragging");
-                      });
-                    }}
-                    @dragend=${(e: DragEvent) => {
-                      (e.currentTarget as HTMLElement).classList.remove("dragging");
-                    }}
                     @click=${() => props.onTaskClick(task.id)}
                   >
                     <div class="kanban-card-title">${task.title}</div>

@@ -41,6 +41,7 @@ export type ChatProps = {
   canSend: boolean;
   disabledReason: string | null;
   error: string | null;
+  errorAction?: { label: string; handler: () => void } | null;
   onDismissError?: () => void;
   sessions: SessionsListResult | null;
   // Focus mode
@@ -268,7 +269,10 @@ export function renderChat(props: ChatProps) {
     <section class="card chat">
       ${props.disabledReason ? html`<div class="callout">${props.disabledReason}</div>` : nothing}
 
-      ${props.error ? html`<div class="callout danger" @click=${props.onDismissError} style="cursor:pointer" title="Click to dismiss">${props.error}</div>` : nothing}
+      ${props.error ? html`<div class="callout danger" title="Click to dismiss">
+        <span @click=${props.onDismissError} style="cursor:pointer">${props.error}</span>
+        ${props.errorAction ? html`<button class="pill-action" @click=${(e: Event) => { e.stopPropagation(); props.errorAction?.handler(); props.onDismissError?.(); }}>${props.errorAction.label}</button>` : nothing}
+      </div>` : nothing}
 
       ${
         props.focusMode

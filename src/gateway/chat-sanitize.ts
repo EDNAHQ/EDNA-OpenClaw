@@ -1,3 +1,6 @@
+const BARE_SESSION_RESET_PROMPT =
+  "A new session was started via /new or /reset. Greet the user in your configured persona, if one is provided. Be yourself - use your defined voice, mannerisms, and mood. Keep it to 1-3 sentences and ask what they want to do. If the runtime model differs from default_model in the system prompt, mention the default model. Do not mention internal steps, files, tools, or reasoning.";
+
 const ENVELOPE_PREFIX = /^\[([^\]]+)\]\s*/;
 const ENVELOPE_CHANNELS = [
   "WebChat",
@@ -85,19 +88,41 @@ export function stripEnvelopeFromMessage(message: unknown): unknown {
   const next: Record<string, unknown> = { ...entry };
 
   if (typeof entry.content === "string") {
-    const stripped = stripMessageIdHints(stripEnvelope(entry.content));
+    let stripped = stripMessageIdHints(stripEnvelope(entry.content));
+    if (stripped.trim() === BARE_SESSION_RESET_PROMPT) {
+      stripped = "/new";
+    }
     if (stripped !== entry.content) {
       next.content = stripped;
       changed = true;
     }
   } else if (Array.isArray(entry.content)) {
     const updated = stripEnvelopeFromContent(entry.content);
-    if (updated.changed) {
-      next.content = updated.content;
+    // Check if any text item matches the bare session reset prompt
+    const resetUpdated = {
+      content: updated.content.map((item) => {
+        if (!item || typeof item !== "object") return item;
+        const e = item as Record<string, unknown>;
+        if (e.type === "text" && typeof e.text === "string" && e.text.trim() === BARE_SESSION_RESET_PROMPT) {
+          return { ...e, text: "/new" };
+        }
+        return item;
+      }),
+      changed: updated.changed || updated.content.some((item) => {
+        if (!item || typeof item !== "object") return false;
+        const e = item as Record<string, unknown>;
+        return e.type === "text" && typeof e.text === "string" && e.text.trim() === BARE_SESSION_RESET_PROMPT;
+      }),
+    };
+    if (resetUpdated.changed) {
+      next.content = resetUpdated.content;
       changed = true;
     }
   } else if (typeof entry.text === "string") {
-    const stripped = stripMessageIdHints(stripEnvelope(entry.text));
+    let stripped = stripMessageIdHints(stripEnvelope(entry.text));
+    if (stripped.trim() === BARE_SESSION_RESET_PROMPT) {
+      stripped = "/new";
+    }
     if (stripped !== entry.text) {
       next.text = stripped;
       changed = true;
