@@ -202,7 +202,7 @@ export function renderApp(state: AppViewState) {
             ${state.tab === "usage" ? nothing : html`<div class="page-sub">${subtitleForTab(state.tab)}</div>`}
           </div>
           <div class="page-meta">
-            ${state.lastError ? html`<div class="pill danger">${state.lastError}</div>` : nothing}
+            ${state.lastError ? html`<div class="pill danger" @click=${() => { state.lastError = null; }} style="cursor:pointer" title="Click to dismiss">${state.lastError}</div>` : nothing}
           </div>
         </section>`}
 
@@ -1098,6 +1098,7 @@ export function renderApp(state: AppViewState) {
                 canSend: state.connected,
                 disabledReason: chatDisabledReason,
                 error: state.lastError,
+                onDismissError: () => { state.lastError = null; },
                 sessions: state.sessionsResult,
                 focusMode: chatFocus,
                 onRefresh: () => {

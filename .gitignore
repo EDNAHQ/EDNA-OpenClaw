@@ -85,3 +85,6 @@ workspace/
 
 # Migration archives
 *.tar.gz
+
+.credentials.md
+*.credentials*

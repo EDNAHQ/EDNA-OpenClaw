@@ -115,12 +115,32 @@ function applySessionDefaults(host: GatewayHost, defaults?: SessionDefaultsSnaps
   }
 }
 
+let errorAutoDismissTimer: ReturnType<typeof setTimeout> | null = null;
+
+function setLastErrorWithAutoDismiss(host: GatewayHost, message: string, dismissMs = 15_000) {
+  host.lastError = message;
+  if (errorAutoDismissTimer) {
+    clearTimeout(errorAutoDismissTimer);
+  }
+  errorAutoDismissTimer = setTimeout(() => {
+    // Only clear if the message hasn't changed since we set the timer
+    if (host.lastError === message) {
+      host.lastError = null;
+    }
+    errorAutoDismissTimer = null;
+  }, dismissMs);
+}
+
 export function connectGateway(host: GatewayHost) {
   host.lastError = null;
   host.hello = null;
   host.connected = false;
   host.execApprovalQueue = [];
   host.execApprovalError = null;
+  if (errorAutoDismissTimer) {
+    clearTimeout(errorAutoDismissTimer);
+    errorAutoDismissTimer = null;
+  }
 
   host.client?.stop();
   host.client = new GatewayBrowserClient({
@@ -150,12 +170,15 @@ export function connectGateway(host: GatewayHost) {
       host.connected = false;
       // Code 1012 = Service Restart (expected during config saves, don't show as error)
       if (code !== 1012) {
-        host.lastError = `disconnected (${code}): ${reason || "no reason"}`;
+        setLastErrorWithAutoDismiss(host, `disconnected (${code}): ${reason || "no reason"}`);
       }
     },
     onEvent: (evt) => handleGatewayEvent(host, evt),
     onGap: ({ expected, received }) => {
-      host.lastError = `event gap detected (expected seq ${expected}, got ${received}); refresh recommended`;
+      setLastErrorWithAutoDismiss(
+        host,
+        `event gap detected (expected seq ${expected}, got ${received}); refresh recommended`,
+      );
     },
   });
   host.client.start();

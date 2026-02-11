@@ -10,6 +10,7 @@ import {
   renderStreamingGroup,
 } from "../chat/grouped-render.ts";
 import { normalizeMessage, normalizeRoleForGrouping } from "../chat/message-normalizer.ts";
+import { extractRawText } from "../chat/message-extract.ts";
 import { icons } from "../icons.ts";
 import { renderMarkdownSidebar } from "./markdown-sidebar.ts";
 import "../components/resizable-divider.ts";
@@ -40,6 +41,7 @@ export type ChatProps = {
   canSend: boolean;
   disabledReason: string | null;
   error: string | null;
+  onDismissError?: () => void;
   sessions: SessionsListResult | null;
   // Focus mode
   focusMode: boolean;
@@ -266,7 +268,7 @@ export function renderChat(props: ChatProps) {
     <section class="card chat">
       ${props.disabledReason ? html`<div class="callout">${props.disabledReason}</div>` : nothing}
 
-      ${props.error ? html`<div class="callout danger">${props.error}</div>` : nothing}
+      ${props.error ? html`<div class="callout danger" @click=${props.onDismissError} style="cursor:pointer" title="Click to dismiss">${props.error}</div>` : nothing}
 
       ${
         props.focusMode
@@ -427,6 +429,32 @@ export function renderChat(props: ChatProps) {
 
 const CHAT_HISTORY_RENDER_LIMIT = 200;
 
+/**
+ * Detect system-generated "user" messages that should be hidden from the chat UI.
+ * These include subagent announce prompts, cron triggers, and session reset instructions
+ * that get stored in the transcript as role="user" but aren't actual user-typed messages.
+ */
+function isInternalUserMessage(msg: unknown): boolean {
+  if (!msg || typeof msg !== "object") return false;
+  const entry = msg as Record<string, unknown>;
+  const role = typeof entry.role === "string" ? entry.role.toLowerCase() : "";
+  if (role !== "user") return false;
+
+  const text = extractRawText(msg);
+  if (!text) return false;
+
+  // Subagent announce pattern: contains findings + stats + summarization instructions
+  if (text.includes("Summarize this naturally") && text.includes("Stats:")) return true;
+
+  // Session reset instruction (expanded /new or /reset command)
+  if (text.startsWith("A new session was started via /new or /reset")) return true;
+
+  // Cron trigger messages: [cron:<uuid> <label>] ...
+  if (/^\[cron:[a-f0-9-]+ /.test(text)) return true;
+
+  return false;
+}
+
 function groupMessages(items: ChatItem[]): Array<ChatItem | MessageGroup> {
   const result: Array<ChatItem | MessageGroup> = [];
   let currentGroup: MessageGroup | null = null;
@@ -503,6 +531,11 @@ function buildChatItems(props: ChatProps): Array<ChatItem | MessageGroup> {
     }
 
     if (!props.showThinking && normalized.role.toLowerCase() === "toolresult") {
+      continue;
+    }
+
+    // Hide system-generated user messages (subagent announces, cron triggers, /new instructions)
+    if (!props.showThinking && isInternalUserMessage(msg)) {
       continue;
     }
 
