@@ -235,7 +235,17 @@ function handleGatewayEventUnsafe(host: GatewayHost, evt: GatewayEventFrame) {
       }
     }
     if (state === "final") {
-      void loadChatHistory(host as unknown as OpenClawApp);
+      // Capture scroll-proximity BEFORE loadChatHistory replaces the messages.
+      // The history reload can dramatically change content height (tool blocks
+      // expand), causing the browser to think the user scrolled away.
+      const wasNearBottom = (host as unknown as { chatUserNearBottom: boolean })
+        .chatUserNearBottom;
+      void loadChatHistory(host as unknown as OpenClawApp).then(() => {
+        if (wasNearBottom) {
+          const app = host as unknown as OpenClawApp;
+          app.scrollToBottom();
+        }
+      });
     }
     return;
   }

@@ -251,7 +251,8 @@ function renderGroupedMessage(
     .filter(Boolean)
     .join(" ");
 
-  if (!markdown && hasToolCards && isToolResult) {
+  // For tool results with cards, only show the collapsed card — never dump raw JSON/text
+  if (hasToolCards && isToolResult) {
     return html`${toolCards.map((card) => renderToolCardSidebar(card, onOpenSidebar))}`;
   }
 

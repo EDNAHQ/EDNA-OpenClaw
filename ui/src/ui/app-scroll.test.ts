@@ -258,6 +258,45 @@ describe("streaming scroll behavior", () => {
 });
 
 /* ------------------------------------------------------------------ */
+/*  Early capture: DOM churn should not break scroll                   */
+/* ------------------------------------------------------------------ */
+
+describe("early chatUserNearBottom capture", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("scrolls to bottom even if chatUserNearBottom flips false before RAF fires", async () => {
+    let rafCallback: FrameRequestCallback | null = null;
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => {
+      rafCallback = cb;
+      return 1;
+    });
+
+    const { host, container } = createScrollHost({
+      scrollHeight: 2000,
+      scrollTop: 1600,
+      clientHeight: 400,
+    });
+    host.chatUserNearBottom = true; // Near bottom when scheduled
+    host.chatHasAutoScrolled = true;
+
+    scheduleChatScroll(host);
+    await host.updateComplete;
+
+    // Simulate DOM-churn scroll event flipping the flag before RAF fires
+    host.chatUserNearBottom = false;
+
+    // Now fire the RAF callback
+    expect(rafCallback).not.toBeNull();
+    rafCallback!(0);
+
+    // Should still scroll because wasNearBottom was captured as true
+    expect(container.scrollTop).toBe(container.scrollHeight);
+  });
+});
+
+/* ------------------------------------------------------------------ */
 /*  resetChatScroll                                                    */
 /* ------------------------------------------------------------------ */
 

@@ -16,6 +16,10 @@ type ScrollHost = {
 };
 
 export function scheduleChatScroll(host: ScrollHost, force = false, smooth = false) {
+  // Capture scroll-proximity state eagerly so that DOM-churn between now
+  // and the requestAnimationFrame callback cannot flip chatUserNearBottom.
+  const wasNearBottom = host.chatUserNearBottom;
+
   if (host.chatScrollFrame) {
     cancelAnimationFrame(host.chatScrollFrame);
   }
@@ -51,7 +55,7 @@ export function scheduleChatScroll(host: ScrollHost, force = false, smooth = fal
       // After initial load, respect the user's scroll position.
       const effectiveForce = force && !host.chatHasAutoScrolled;
       const shouldStick =
-        effectiveForce || host.chatUserNearBottom || distanceFromBottom < NEAR_BOTTOM_THRESHOLD;
+        effectiveForce || wasNearBottom || distanceFromBottom < NEAR_BOTTOM_THRESHOLD;
 
       if (!shouldStick) {
         // User is scrolled up — flag that new content arrived below.
