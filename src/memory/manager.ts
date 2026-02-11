@@ -50,10 +50,17 @@ import {
   type MemoryChunk,
   type MemoryFileEntry,
   parseEmbedding,
+  remapChunkLines,
   runWithConcurrency,
 } from "./internal.js";
 import { searchKeyword, searchVector } from "./manager-search.js";
 import { ensureMemoryIndexSchema } from "./memory-schema.js";
+import {
+  buildSessionEntry,
+  listSessionFilesForAgent,
+  sessionPathForFile,
+  type SessionFileEntry,
+} from "./session-files.js";
 import { loadSqliteVecExtension } from "./sqlite-vec.js";
 import { requireNodeSqlite } from "./sqlite.js";
 
@@ -64,15 +71,6 @@ type MemoryIndexMeta = {
   chunkTokens: number;
   chunkOverlap: number;
   vectorDims?: number;
-};
-
-type SessionFileEntry = {
-  path: string;
-  absPath: string;
-  mtimeMs: number;
-  size: number;
-  hash: string;
-  content: string;
 };
 
 type MemorySyncProgressState = {
@@ -1147,8 +1145,8 @@ export class MemoryIndexManager implements MemorySearchManager {
     needsFullReindex: boolean;
     progress?: MemorySyncProgressState;
   }) {
-    const files = await this.listSessionFiles();
-    const activePaths = new Set(files.map((file) => this.sessionPathForFile(file)));
+    const files = await listSessionFilesForAgent(this.agentId);
+    const activePaths = new Set(files.map((file) => sessionPathForFile(file)));
     const indexAll = params.needsFullReindex || this.sessionsDirtyFiles.size === 0;
     log.debug("memory sync: indexing session files", {
       files: files.length,
@@ -1177,7 +1175,7 @@ export class MemoryIndexManager implements MemorySearchManager {
         }
         return;
       }
-      const entry = await this.buildSessionEntry(absPath);
+      const entry = await buildSessionEntry(absPath);
       if (!entry) {
         if (params.progress) {
           params.progress.completed += 1;
@@ -1545,113 +1543,6 @@ export class MemoryIndexManager implements MemorySearchManager {
       .run(META_KEY, value);
   }
 
-  private async listSessionFiles(): Promise<string[]> {
-    const dir = resolveSessionTranscriptsDirForAgent(this.agentId);
-    try {
-      const entries = await fs.readdir(dir, { withFileTypes: true });
-      return entries
-        .filter((entry) => entry.isFile())
-        .map((entry) => entry.name)
-        .filter((name) => name.endsWith(".jsonl"))
-        .map((name) => path.join(dir, name));
-    } catch {
-      return [];
-    }
-  }
-
-  private sessionPathForFile(absPath: string): string {
-    return path.join("sessions", path.basename(absPath)).replace(/\\/g, "/");
-  }
-
-  private normalizeSessionText(value: string): string {
-    return value
-      .replace(/\s*\n+\s*/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
-  private extractSessionText(content: unknown): string | null {
-    if (typeof content === "string") {
-      const normalized = this.normalizeSessionText(content);
-      return normalized ? normalized : null;
-    }
-    if (!Array.isArray(content)) {
-      return null;
-    }
-    const parts: string[] = [];
-    for (const block of content) {
-      if (!block || typeof block !== "object") {
-        continue;
-      }
-      const record = block as { type?: unknown; text?: unknown };
-      if (record.type !== "text" || typeof record.text !== "string") {
-        continue;
-      }
-      const normalized = this.normalizeSessionText(record.text);
-      if (normalized) {
-        parts.push(normalized);
-      }
-    }
-    if (parts.length === 0) {
-      return null;
-    }
-    return parts.join(" ");
-  }
-
-  private async buildSessionEntry(absPath: string): Promise<SessionFileEntry | null> {
-    try {
-      const stat = await fs.stat(absPath);
-      const raw = await fs.readFile(absPath, "utf-8");
-      const lines = raw.split("\n");
-      const collected: string[] = [];
-      for (const line of lines) {
-        if (!line.trim()) {
-          continue;
-        }
-        let record: unknown;
-        try {
-          record = JSON.parse(line);
-        } catch {
-          continue;
-        }
-        if (
-          !record ||
-          typeof record !== "object" ||
-          (record as { type?: unknown }).type !== "message"
-        ) {
-          continue;
-        }
-        const message = (record as { message?: unknown }).message as
-          | { role?: unknown; content?: unknown }
-          | undefined;
-        if (!message || typeof message.role !== "string") {
-          continue;
-        }
-        if (message.role !== "user" && message.role !== "assistant") {
-          continue;
-        }
-        const text = this.extractSessionText(message.content);
-        if (!text) {
-          continue;
-        }
-        const label = message.role === "user" ? "User" : "Assistant";
-        collected.push(`${label}: ${text}`);
-      }
-      const content = collected.join("\n");
-      return {
-        path: this.sessionPathForFile(absPath),
-        absPath,
-        mtimeMs: stat.mtimeMs,
-        size: stat.size,
-        hash: hashText(content),
-        content,
-      };
-    } catch (err) {
-      log.debug(`Failed reading session file ${absPath}: ${String(err)}`);
-      return null;
-    }
-  }
-
   private estimateEmbeddingTokens(text: string): number {
     if (!text) {
       return 0;
@@ -1890,7 +1781,9 @@ export class MemoryIndexManager implements MemorySearchManager {
     if (!voyage) {
       return this.embedChunksInBatches(chunks);
     }
-    if (chunks.length === 0) return [];
+    if (chunks.length === 0) {
+      return [];
+    }
     const cached = this.loadEmbeddingCache(chunks.map((chunk) => chunk.hash));
     const embeddings: number[][] = Array.from({ length: chunks.length }, () => []);
     const missing: Array<{ index: number; chunk: MemoryChunk }> = [];
@@ -1905,7 +1798,9 @@ export class MemoryIndexManager implements MemorySearchManager {
       }
     }
 
-    if (missing.length === 0) return embeddings;
+    if (missing.length === 0) {
+      return embeddings;
+    }
 
     const requests: VoyageBatchRequest[] = [];
     const mapping = new Map<string, { index: number; hash: string }>();
@@ -1937,13 +1832,17 @@ export class MemoryIndexManager implements MemorySearchManager {
         }),
       fallback: async () => await this.embedChunksInBatches(chunks),
     });
-    if (Array.isArray(batchResult)) return batchResult;
+    if (Array.isArray(batchResult)) {
+      return batchResult;
+    }
     const byCustomId = batchResult;
 
     const toCache: Array<{ hash: string; embedding: number[] }> = [];
     for (const [customId, embedding] of byCustomId.entries()) {
       const mapped = mapping.get(customId);
-      if (!mapped) continue;
+      if (!mapped) {
+        continue;
+      }
       embeddings[mapped.index] = embedding;
       toCache.push({ hash: mapped.hash, embedding });
     }
@@ -2310,6 +2209,9 @@ export class MemoryIndexManager implements MemorySearchManager {
     const chunks = chunkMarkdown(content, this.settings.chunking).filter(
       (chunk) => chunk.text.trim().length > 0,
     );
+    if (options.source === "sessions" && "lineMap" in entry) {
+      remapChunkLines(chunks, entry.lineMap);
+    }
     const embeddings = this.batch.enabled
       ? await this.embedChunksWithBatch(chunks, entry, options.source)
       : await this.embedChunksInBatches(chunks);
