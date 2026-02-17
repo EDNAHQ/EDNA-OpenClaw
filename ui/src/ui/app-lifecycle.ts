@@ -19,6 +19,7 @@ import {
 } from "./app-settings.ts";
 
 type LifecycleHost = {
+  showSplash: boolean;
   basePath: string;
   tab: Tab;
   chatHasAutoScrolled: boolean;
@@ -34,7 +35,19 @@ type LifecycleHost = {
   topbarObserver: ResizeObserver | null;
 };
 
+function shouldShowSplash(): boolean {
+  try {
+    const last = localStorage.getItem("edna-splash-last");
+    if (!last) return true;
+    const today = new Date().toISOString().slice(0, 10);
+    return last !== today;
+  } catch {
+    return true;
+  }
+}
+
 export function handleConnected(host: LifecycleHost) {
+  host.showSplash = shouldShowSplash();
   host.basePath = inferBasePath();
   applySettingsFromUrl(host as unknown as Parameters<typeof applySettingsFromUrl>[0]);
   syncTabWithLocation(host as unknown as Parameters<typeof syncTabWithLocation>[0], true);

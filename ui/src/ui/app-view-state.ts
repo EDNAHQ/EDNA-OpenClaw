@@ -36,6 +36,7 @@ import type { NostrProfileFormState } from "./views/channels.nostr-profile-form.
 import type { SessionLogEntry } from "./views/usage.ts";
 
 export type AppViewState = {
+  showSplash: boolean;
   settings: UiSettings;
   password: string;
   tab: Tab;

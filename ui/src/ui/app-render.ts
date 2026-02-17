@@ -87,6 +87,7 @@ import { renderTaskCreateModal } from "./views/tasks-create-modal.ts";
 import { renderDocuments } from "./views/documents.ts";
 import { renderConnectedApis } from "./views/connected-apis.ts";
 import { renderActivity } from "./views/activity.ts";
+import { renderSplash } from "./views/splash.ts";
 
 const AVATAR_DATA_RE = /^data:/i;
 const AVATAR_HTTP_RE = /^https?:\/\//i;
@@ -126,6 +127,23 @@ export function renderApp(state: AppViewState) {
     state.agentsList?.agents?.[0]?.id ??
     null;
 
+  if (state.showSplash) {
+    const dismissSplash = (tab?: import("./navigation.ts").Tab) => {
+      try {
+        localStorage.setItem("edna-splash-last", new Date().toISOString().slice(0, 10));
+      } catch { /* ignore */ }
+      state.showSplash = false;
+      if (tab) {
+        state.setTab(tab);
+      }
+    };
+    return renderSplash({
+      onNavigate: (tab) => dismissSplash(tab),
+      onSkip: () => dismissSplash(),
+      basePath: normalizeBasePath(state.basePath ?? ""),
+    });
+  }
+
   return html`
     <div class="shell ${isChat ? "shell--chat" : ""} ${chatFocus ? "shell--chat-focus" : ""} ${state.settings.navCollapsed ? "shell--nav-collapsed" : ""} ${state.onboarding ? "shell--onboarding" : ""}">
       <header class="topbar">
@@ -142,18 +160,32 @@ export function renderApp(state: AppViewState) {
           >
             <span class="nav-collapse-toggle__icon">${icons.menu}</span>
           </button>
-          <div class="brand">
+          <button
+            class="brand brand--clickable"
+            @click=${() => { state.showSplash = true; }}
+            title="Open Portal"
+            aria-label="Open Portal"
+          >
             <div class="brand-logo">
               <img src=${basePath ? `${basePath}/favicon.svg` : "/favicon.svg"} alt="EDNA OpenClaw" />
             </div>
             <div class="brand-text">
               <div class="brand-title">EDNA OPENCLAW</div>
             </div>
-          </div>
+          </button>
         </div>
         <div class="topbar-status"></div>
       </header>
       <aside class="rail">
+        <button
+          class="rail-icon rail-icon--portal"
+          title="Portal"
+          aria-label="Open Portal"
+          @click=${() => { state.showSplash = true; }}
+        >
+          ${icons.portal}
+        </button>
+        <div class="rail-divider"></div>
         ${TAB_GROUPS.map((group) => {
           const active = groupForTab(state.tab) === group.label;
           const href = pathForTab(group.tabs[0], basePath);
