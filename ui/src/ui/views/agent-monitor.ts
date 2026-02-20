@@ -14,7 +14,7 @@ export function renderAgentMonitor(props: AgentMonitorProps) {
   const subAgentCount = Math.max(0, agents.length - 1);
   const sessionsCount = props.sessionsResult?.count ?? 0;
   const cronEnabled = props.cronStatus?.enabled ?? false;
-  const cronJobs = props.cronStatus?.jobs ?? [];
+  const cronJobsCount = props.cronStatus?.jobs ?? 0;
   const activeHooks = agents.reduce(
     (acc, a) => acc + ((a as Record<string, unknown>).hookCount as number ?? 0),
     0,
@@ -58,7 +58,7 @@ export function renderAgentMonitor(props: AgentMonitorProps) {
             ${cronEnabled ? "Enabled" : "Disabled"}
           </span>
         </div>
-        <div class="agent-stat-value val-yellow">${cronJobs.length}</div>
+        <div class="agent-stat-value val-yellow">${cronJobsCount}</div>
         <div class="agent-stat-label">Cron Jobs</div>
       </div>
 
