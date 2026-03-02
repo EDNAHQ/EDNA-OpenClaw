@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.2.26",
+    "lastTouchedAt": "2026-02-27T07:14:48.883Z"
+  },
+  "env": {
+    "vars": {
+      "BROWSERBASE_API_KEY": "***REDACTED***",
+      "BROWSERBASE_PROJECT_ID": "8e65143a-9127-4f36-8e17-c9eebc669a6f",
+      "BRAVE_API_KEY": "***REDACTED***",
+      "DO_PAT": "***REDACTED***",
+      "ANTHROPIC_API_KEY": "***REDACTED***",
+      "OPENAI_API_KEY": "***REDACTED***",
+      "GITHUB_TOKEN": "***REDACTED***",
+      "STRIPE_SECRET_KEY": "***REDACTED***",
+      "OPENROUTER_API_KEY": "***REDACTED***",
+      "REPLICATE_API_TOKEN": "***REDACTED***",
+      "GMAIL_CLIENT_ID": "507272932730-48jqfp1tjpsbshnop691vne2lchqjb4n.apps.googleusercontent.com",
+      "GMAIL_CLIENT_SECRET": "***REDACTED***",
+      "GMAIL_REFRESH_TOKEN": "***REDACTED***",
+      "DRIP_API_TOKEN": "***REDACTED***",
+      "SUPABASE_URL": "https://aaheuncnheyqnuoyzokp.supabase.co",
+      "SUPABASE_SERVICE_ROLE_KEY": "***REDACTED***",
+      "SUPABASE_DB_URL": "postgresql://postgres.aaheuncnheyqnuoyzokp:Pompallier2332@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres",
+      "HELPGENIE_API_KEY": "***REDACTED***",
+      "CALENDLY_API_TOKEN": "***REDACTED***",
+      "RAPIDAPI_KEY": "***REDACTED***"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "/home/node/.openclaw/workspace",
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "subagents": {
+        "model": "openrouter/deepseek/deepseek-chat-v3-0324",
+        "thinking": "off",
+        "maxConcurrent": 8,
+        "maxSpawnDepth": 2,
+        "maxChildrenPerAgent": 5,
+        "runTimeoutSeconds": 900
+      }
+    },
+    "list": [
+      {
+        "id": "main",
+        "default": true,
+        "subagents": {
+          "allowAgents": [
+            "*"
+          ]
+        }
+      }
+    ]
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "pairing",
+      "botToken": "***REDACTED***",
+      "groups": {
+        "*": {
+          "requireMention": false,
+          "groupPolicy": "open",
+          "allowFrom": []
+        }
+      },
+      "allowFrom": [
+        8747238183
+      ],
+      "groupPolicy": "open",
+      "dms": {},
+      "heartbeat": {
+        "showAlerts": true
+      },
+      "linkPreview": true,
+      "streaming": "partial"
+    },
+    "slack": {
+      "mode": "socket",
+      "webhookPath": "***REDACTED***",
+      "enabled": true,
+      "botToken": "***REDACTED***",
+      "appToken": "***REDACTED***",
+      "userTokenReadOnly": true,
+      "groupPolicy": "open",
+      "dmPolicy": "open",
+      "nativeStreaming": true,
+      "streaming": "partial",
+      "allowFrom": [
+        "*"
+      ]
+    }
+  },
+  "gateway": {
+    "mode": "local",
+    "controlUi": {
+      "allowInsecureAuth": true,
+      "dangerouslyAllowHostHeaderOriginFallback": true
+    },
+    "auth": {
+      "mode": "password",
+      "password": "***REDACTED***"
+    },
+    "trustedProxies": [
+      "172.18.0.0/16",
+      "127.0.0.1"
+    ]
+  },
+  "plugins": {
+    "entries": {
+      "telegram": {
+        "enabled": true
+      },
+      "slack": {
+        "enabled": true
+      }
+    }
+  }
+}
