@@ -1,7 +1,7 @@
 {
   "meta": {
     "lastTouchedVersion": "2026.2.26",
-    "lastTouchedAt": "2026-02-27T07:14:48.883Z"
+    "lastTouchedAt": "2026-03-03T04:18:06.362Z"
   },
   "env": {
     "vars": {
@@ -29,17 +29,43 @@
   },
   "agents": {
     "defaults": {
+      "model": "anthropic/claude-opus-4-6",
       "workspace": "/home/node/.openclaw/workspace",
+      "contextPruning": {
+        "mode": "cache-ttl",
+        "ttl": "5m"
+      },
       "compaction": {
         "mode": "safeguard"
       },
+      "heartbeat": {
+        "every": "30m",
+        "model": "openrouter/deepseek/deepseek-chat-v3-0324"
+      },
       "subagents": {
-        "model": "openrouter/deepseek/deepseek-chat-v3-0324",
-        "thinking": "off",
         "maxConcurrent": 8,
         "maxSpawnDepth": 2,
         "maxChildrenPerAgent": 5,
+        "model": "openrouter/deepseek/deepseek-chat-v3-0324",
+        "thinking": "off",
         "runTimeoutSeconds": 900
+      },
+      "models": {
+        "anthropic/claude-opus-4-6": {},
+        "anthropic/claude-sonnet-4-20250514": {},
+        "openrouter/deepseek/deepseek-chat-v3-0324": {},
+        "openrouter/qwen/qwen3-235b-a22b-2507": {},
+        "openrouter/qwen/qwen3-30b-a3b": {},
+        "openrouter/qwen/qwen3.5-flash-02-23": {},
+        "openrouter/google/gemini-2.5-flash": {},
+        "openrouter/google/gemini-2.0-flash-001": {},
+        "openrouter/google/gemini-2.0-flash-lite-001": {},
+        "openrouter/x-ai/grok-4.1-fast": {},
+        "openrouter/x-ai/grok-4-fast": {},
+        "openrouter/minimax/minimax-m1": {},
+        "openrouter/openai/gpt-4.1-nano": {},
+        "openrouter/openai/gpt-4.1-mini": {},
+        "openrouter/meta-llama/llama-4-maverick": {}
       }
     },
     "list": [
@@ -53,6 +79,11 @@
         }
       }
     ]
+  },
+  "messages": {
+    "groupChat": {
+      "historyLimit": 7
+    }
   },
   "commands": {
     "native": "auto",
@@ -76,12 +107,13 @@
         8747238183
       ],
       "groupPolicy": "open",
+      "historyLimit": 7,
       "dms": {},
+      "streaming": "partial",
       "heartbeat": {
         "showAlerts": true
       },
-      "linkPreview": true,
-      "streaming": "partial"
+      "linkPreview": true
     },
     "slack": {
       "mode": "socket",
@@ -91,9 +123,10 @@
       "appToken": "***REDACTED***",
       "userTokenReadOnly": true,
       "groupPolicy": "open",
-      "dmPolicy": "open",
-      "nativeStreaming": true,
+      "historyLimit": 7,
       "streaming": "partial",
+      "nativeStreaming": true,
+      "dmPolicy": "open",
       "allowFrom": [
         "*"
       ]
@@ -102,8 +135,8 @@
   "gateway": {
     "mode": "local",
     "controlUi": {
-      "allowInsecureAuth": true,
-      "dangerouslyAllowHostHeaderOriginFallback": true
+      "dangerouslyAllowHostHeaderOriginFallback": true,
+      "allowInsecureAuth": true
     },
     "auth": {
       "mode": "password",

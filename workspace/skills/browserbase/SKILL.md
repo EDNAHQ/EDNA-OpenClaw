@@ -115,6 +115,43 @@ Errors per-step include `"ok": false, "error": "..."` — script continues throu
 
 For recurring tasks (e.g., daily site check), create a cron job that runs `bb-browse.mjs` with a saved context. Store context IDs in workspace files for reuse.
 
+## Parallel Sessions — Use By Default
+
+**When exploring or scraping multiple pages/sections, always use parallel sessions.** BrowserBase supports concurrent browser instances — don't run them sequentially unless there's a dependency between steps.
+
+### When to parallelise
+- Mapping multiple pages of a site (e.g. homepage, pricing, about, docs)
+- Scraping data from several URLs
+- Comparing multiple sites side-by-side
+- Any task touching 2+ independent URLs
+
+### How
+Spawn multiple `bb-browse.mjs` processes in the background, each with its own actions file:
+
+```bash
+# Create separate action files for each target
+cat > /tmp/actions-homepage.json << 'EOF'
+[{"action":"goto","url":"https://example.com"},{"action":"text","selector":"body"}]
+EOF
+cat > /tmp/actions-pricing.json << 'EOF'
+[{"action":"goto","url":"https://example.com/pricing"},{"action":"text","selector":"body"}]
+EOF
+cat > /tmp/actions-docs.json << 'EOF'
+[{"action":"goto","url":"https://example.com/docs"},{"action":"text","selector":"body"}]
+EOF
+
+# Run all in parallel
+node scripts/bb-browse.mjs /tmp/actions-homepage.json > /tmp/result-homepage.json &
+node scripts/bb-browse.mjs /tmp/actions-pricing.json > /tmp/result-pricing.json &
+node scripts/bb-browse.mjs /tmp/actions-docs.json > /tmp/result-docs.json &
+wait
+```
+
+### Limits
+- Keep to 3-4 concurrent sessions to stay within BrowserBase plan limits
+- If sessions share a context (logged-in state), create the context first, then pass `--context <id>` to each parallel session
+- Each parallel session is independent — no shared state between them unless using the same context
+
 ## Tips
 
 - Use `wait` after login clicks — pages need time to redirect

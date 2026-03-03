@@ -1,14 +1,14 @@
 {
-  "lastRun": "2026-03-02T10:40:25.474Z",
+  "lastRun": "2026-03-03T13:48:07.486Z",
   "batchSize": 3000,
-  "batchNumber": 7,
+  "batchNumber": 21,
   "thisRun": {
-    "processed": 3000,
-    "enriched": 3000,
+    "processed": 500,
+    "enriched": 500,
     "skipped": 0,
     "errors": 0,
     "rateLimited": 0
   },
-  "remaining": 41942,
-  "elapsedMinutes": 98.9
+  "remaining": 29531,
+  "elapsedMinutes": 16.6
 }

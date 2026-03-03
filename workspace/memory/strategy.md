@@ -127,6 +127,15 @@ Updated after each conversation.
 
 ---
 
+**Big Picture Thinking (2026-03-02):**
+- Software as a category is declining — agents replace the need for most SaaS tools
+- Value shifts from "sell tools to humans" to "sell outcomes via agents"
+- Small teams + agents = output of much larger companies at fraction of the cost
+- Speed and adaptability > scale and stability in the new economy
+- Wild future business models discussed: agent marketplaces, revenue-share agent services, agent insurance, one-person conglomerates, agent-to-agent commerce, vertical agent franchises, agent performance management, knowledge monetisation
+- Sam's core insight: "whoever can plug into this agent world and become something businesses use repeatedly will capture massive value"
+- The opportunity isn't just Omni — it's being positioned at the center of this shift
+
 **Lessons from first proposal:**
 - Don't make up claims (e.g. "working prototype") — only state real things
 - Keep tone professional and moderate — sell the dream but don't oversell

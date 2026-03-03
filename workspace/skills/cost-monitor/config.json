@@ -1,0 +1,35 @@
+{
+    "thresholds": {
+        "daily_warning": 5.0,
+        "daily_alert": 10.0,
+        "weekly_warning": 35.0,
+        "weekly_budget": 75.0
+    },
+    "providers": {
+        "openrouter": {
+            "enabled": true,
+            "base_url": "https://openrouter.ai/api/v1",
+            "priority": "high"
+        },
+        "anthropic": {
+            "enabled": true,
+            "base_url": "https://api.anthropic.com/v1",
+            "priority": "high"
+        },
+        "openai": {
+            "enabled": false,
+            "base_url": "https://api.openai.com/v1",
+            "priority": "medium"
+        }
+    },
+    "notifications": {
+        "slack_channel": "#edna-ops-agents",
+        "webhook_urls": [],
+        "daily_time": "20:00"
+    },
+    "reporting": {
+        "trend_days": 7,
+        "model_details": true,
+        "suggestions": true
+    }
+}

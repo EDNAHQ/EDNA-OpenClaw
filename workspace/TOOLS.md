@@ -1,75 +1,85 @@
 # TOOLS.md - What EDNA Claw Can Do
 
-A lean reference of all capabilities. Each maps to a skill where the real details live.
-When I need to do something, I check the skill. We build skills out over time.
+A lean reference of all capabilities organized by function. When I need to do something, I check this file to find the right skill.
 
-## Channels & Communication
+## 📞 Communication & Channels
 | Capability | Skill | Status |
 |-----------|-------|--------|
-| Slack (enterprisedna-hq) | `slack` | ✅ Active |
-| Telegram | `telegram` | ✅ Active (needs skill) |
-| Webchat (stock OpenClaw UI) | `webchat` | ✅ Active (needs skill) |
-| Email — Gmail + Outlook (unified) | `email` | ✅ Partial (Gmail active, Outlook pending) |
+| **Slack (enterprisedna-hq)** | `slack` | ✅ Active |
+| **Telegram** | `telegram` | ✅ Active (needs skill) |
+| **Webchat interface** | `webchat` | ✅ Active (needs skill) |
+| **Gmail email management** | `email` | ✅ Active |
+| **Outlook/M365 email** | `email-outlook` | 🔜 Planned |
 
-## AI & Search
+## 🤖 AI & Search
 | Capability | Skill | Status |
 |-----------|-------|--------|
-| Claude (Anthropic) — LLM | `anthropic` | ✅ Active (needs skill) |
-| OpenAI — Image generation | `openai-image-gen` | ✅ Active |
-| OpenAI — Whisper transcription | `openai-whisper-api` | ✅ Active |
-| Brave Search — Web search | `web-search` | ✅ Active |
-| BrowserBase — Cloud browser | `browserbase` | ✅ Active |
-| OpenRouter — Multi-model LLM gateway | `openrouter` | ✅ Active |
-| Replicate — Image & video generation | `replicate` | ✅ Active |
+| **Web search & research** | `web-search` | ✅ Active |
+| **Browser automation** | `browserbase` | ✅ Active |
+| **Multi-model LLM gateway** | `openrouter` | ✅ Active |
+| **Image generation** | `replicate`, `openai-image-gen` | ✅ Active |
+| **Transcription (audio to text)** | `openai-whisper-api` | ✅ Active |
+| **Text-to-speech** | `tts` | ✅ Active (needs skill) |
 
-## Databases
+## 💼 Business Tools & Operations
 | Capability | Skill | Status |
 |-----------|-------|--------|
-| Supabase — Generic connection patterns | `supabase` | ✅ Active |
-| EDNA CRM — Companies, contacts, deals, interactions | `edna-crm` | ✅ Active |
+| **Scheduling & meetings** | `calendly` | ✅ Active |
+| **Billing & subscriptions** | `stripe` | ✅ Active |
+| **Email marketing & automation** | `drip` | ✅ Active |
+| **Financial & invoicing** | `xero` | 🔜 Planned |
+| **Customer CRM** | `edna-crm` | ✅ Active |
+| **Customer access provisioning** | `laravel-admin` | 🔜 Planned |
+| **Cost optimization** | `cost-monitor` | ✅ Active |
 
-## Business Tools
+## 🏗️ Infrastructure
 | Capability | Skill | Status |
 |-----------|-------|--------|
-| Calendly — Scheduling & meetings | `calendly` | ✅ Active |
-| Stripe — Billing & disputes | `stripe` | ✅ Active |
-| Xero — Invoicing | `xero` | 🔜 Planned |
-| Laravel Admin — Customer access | `laravel-admin` | 🔜 Planned |
-| Trello — Project boards | `trello` | 🔜 Planned |
-| Notion — Docs & wiki | `notion` | 🔜 Planned |
-| Drip — Email marketing & automation | `drip` | ✅ Active |
+| **DigitalOcean droplets** | `digitalocean` | ✅ Active |
+| **GitHub repos & code** | `github` | ✅ Active |
+| **Security & health checks** | `healthcheck` | ✅ Active |
+| **Instance setup auditing** | `openclaw-audit` | ✅ Active |
 
-## Voice AI
+## 🎨 Content & Community
 | Capability | Skill | Status |
 |-----------|-------|--------|
-| Help Genie — Voice AI platform (agents, knowledge, leads, conversations) | `helpgenie` | ✅ Active |
+| **EDNA Builders community** | `edna-builders` | ✅ Active |
+| **ContentLead social media** | `contentlead` | ✅ Active |
+| **Daily market intelligence** | `morning-intel` | ✅ Active |
+| **YouTube transcript extraction** | `youtube-transcript` | ✅ Active |
+| **Weather forecasts** | `weather` | ✅ Active |
+| **UI rendering & presentations** | `canvas` | ✅ Active (needs skill) |
 
-## Infrastructure
+## 🎯 Task & Project Management
 | Capability | Skill | Status |
 |-----------|-------|--------|
-| DigitalOcean — Droplet mgmt | `digitalocean` | ✅ Active (needs skill) |
-| Server healthcheck & security | `healthcheck` | ✅ Active |
-| GitHub — Repos & issues | `github` | ✅ Active |
+| **Sam's personal to-do list** | `sam-todos.md` | ✅ Active |
+| **Notion documentation** | `notion` | 🔜 Planned |
+| **Trello project boards** | `trello` | 🔜 Planned |
 
-## Operations
+## 🎙️ Voice AI
 | Capability | Skill | Status |
 |-----------|-------|--------|
-| OpenClaw Audit — Best practice checker for entire instance setup | `openclaw-audit` | ✅ Active |
+| **Help Genie voice platform** | `helpgenie` | ✅ Active |
 
-## Content & Media
-| Capability | Skill | Status |
-|-----------|-------|--------|
-| YouTube Transcripts — Fetch video transcripts via RapidAPI | `youtube-transcript` | ✅ Active |
+## 📊 Common Workflows
+When you need to... | Use these skills
+---|---
+**Help a customer** | `edna-crm` → check account, `slack` → coordinate response
+**Create marketing content** | `contentlead` → generate, `replicate` → images
+**Schedule a meeting** | `calendly` → availability, `slack` → notify team
+**Process a billing issue** | `stripe` → investigate, `xero` → generate invoice, `slack` → notify Angie
+**Monitor daily insights** | `morning-intel` → run, `slack` → share with team
+**Deploy code** | `github` → commit, `digitalocean` → restart services
+**Check security** | `healthcheck` → scan, `openclaw-audit` → validate setup
 
-## Utilities
-| Capability | Skill | Status |
-|-----------|-------|--------|
-| Weather forecasts | `weather` | ✅ Active |
-| Canvas — Render UI | `canvas` | ✅ Active (needs skill) |
-| Voice / TTS | `tts` | ✅ Active (needs skill) |
+## 🚀 Getting Started
+1. **Quick reference**: This file
+2. **Detailed docs**: Each skill has `SKILL.md` with full details
+3. **Central file**: `sam-todos.md` for personal tasks
+4. **Daily process**: Morning runs `morning-intel` for market insights
 
 ---
-
 **Key:**
 - ✅ Active — working now
 - ✅ Active (needs skill) — works but skill file needs creating with full details
